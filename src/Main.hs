@@ -5,10 +5,12 @@
 module Main where
 
 import Network.Wreq (get, responseStatus, responseBody, statusCode)
+import Data.Monoid ((<>))
 import Control.Monad (when)
 import Control.Lens ((^.), (^?), itraverseOf_)
 import Data.Aeson.Lens (key, members, _String, AsValue)
 import qualified Data.Text as Text
+import qualified Data.Text.IO as TextIO
 
 url :: String
 url = "https://www.hautelook.com/api"
@@ -26,6 +28,6 @@ main = do
 printLink :: AsValue s => Text.Text -> s -> IO ()
 printLink rel link =
   case link ^? key "href" . _String of
-    Nothing -> fail ("Failed to get 'href' value from '_links' at key " ++
-                     Text.unpack rel)
-    Just href -> putStrLn (Text.unpack rel ++ " -> " ++ Text.unpack href)
+    Nothing -> fail $ Text.unpack $
+      "Failed to get 'href' value from '_links' at key " <> rel
+    Just href -> TextIO.putStrLn $ rel <> " -> " <> href
